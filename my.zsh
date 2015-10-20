@@ -5,6 +5,7 @@ function ghidoing() {
   if [[ "$1" = <-> ]]
   then
     ghi label "$1" -a "in progress"
+    git checkout -b f-issue-$1
   else
     ghi open -m "$1" -L "in progress"
   fi
@@ -13,6 +14,9 @@ function ghidoing() {
 function ghidone() {
   if [[ "$1" = <-> ]]
   then
+    git checkout develop
+    git merge f-issue-$1
+    git branch -d f-issue-$1
     ghi close "$1"
   else
     ghi close $(ghi open -m "$1" -L "in progress" | head -n 1 | awk 'match($0, /[0-9]+/){print substr($0, RSTART, RLENGTH)}')
@@ -24,9 +28,6 @@ function ghidone() {
 # aliases
 alias git=hub
 alias e=emacs
-
-# variables
-eval $(docker-machine env docker)
 
 export EDITOR=/usr/bin/emacs
 export SHELL=/usr/local/bin/zsh
